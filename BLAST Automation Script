@@ -1,0 +1,83 @@
+  GNU nano 7.2                                     blast_automation_id.sh *                                             
+#!/bin/bash
+# ===============================================================
+# Script: run_blast_autodetect_full.sh
+# Purpose: Automate BLAST for DNA Demon results (16S, COI, etc.)
+# Auto-detects marker type from folder name + metadata file
+# Stops with clear errors if files are missing
+# ===============================================================
+
+# --- INPUT ARGUMENT ---
+INPUT_DIR=$1        # e.g. dna_demon_results/16S_Run1 or dna_demon_results/COI_Run2
+
+if [[ -z "$INPUT_DIR" ]]; then
+    echo "❌ ERROR: No input folder provided."
+    echo "Usage: bash run_blast_autodetect_full.sh dna_demon_results/16S_Run1"
+    exit 1
+fi
+
+# --- AUTO-DETECT MARKER TYPE ---
+if [[ "$INPUT_DIR" == *"16S"* ]]; then
+    MARKER="16S"
+elif [[ "$INPUT_DIR" == *"COI"* ]]; then
+    MARKER="COI"
+else
+    echo "❌ ERROR: Could not auto-detect marker type (expected '16S' or 'COI' in folder name)."
+    exit 1
+fi
+
+# --- PATHS ---
+BASE="/home/aguirre_lab/Documents/DNA_Demon_Sequence_Results"
+DB="$BASE/blast_db/prey_db_${MARKER,,}"
+TAXON_MAP="$BASE/blast_db/id_to_taxon_${MARKER,,}.tsv"
+METADATA="$BASE/metadata/sample_to_treatment_${MARKER}.tsv"
+
+# --- CHECK REQUIRED FILES ---
+for f in "$DB.nsq" "$TAXON_MAP" "$METADATA"; do
+    if [[ ! -f "$f" ]]; then
+        echo "❌ ERROR: Required file missing: $f"
+        exit 1
+    fi
+done
+
+# --- TIMESTAMPED OUTPUT DIRECTORY ---
+RUN_NAME=$(basename "$INPUT_DIR")
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+OUTDIR="$BASE/blast_results/${RUN_NAME}_${MARKER}_${TIMESTAMP}"
+mkdir -p "$OUTDIR"
+
+COMBINED="$OUTDIR/combined_blast_results.tsv"
+COMBINED_TAXA="$OUTDIR/combined_blast_results_with_taxa.tsv"
+SUMMARY="$OUTDIR/summarized_prey_table.tsv"
+# --- HEADER ---
+echo -e "sample\tquery_id\tsubject_id\t%identity\talignment_length\tmismatches\tgap_opens\tq_start\tq_end\ts_start\ts_e>
+
+# --- BLAST LOOP ---
+find "$INPUT_DIR" -type f -name "cluster.fasta" | while read fasta; do
+    SAMPLE=$(basename "$(dirname "$fasta")")
+
+    echo "Processing $SAMPLE using $MARKER database..."
+
+    blastn -query "$fasta" -db "$DB" \
+        -outfmt "6 qseqid sseqid pident length mismatch gapopen qstart qend sstart send evalue bitscore" \
+        >> "$COMBINED.tmp"
+
+    awk -v sample="$SAMPLE" '{print sample "\t" $0}' "$COMBINED.tmp" >> "$COMBINED"
+    rm "$COMBINED.tmp"
+done
+
+# --- ADD TAXON INFO ---
+awk 'NR==FNR {map[$1]=$2; next} 
+     NR==1 {print $0 "\tSpecies"; next} 
+     {print $0 "\t" (map[$3] ? map[$3] : "Unknown")}' \
+     "$TAXON_MAP" "$COMBINED" > "$COMBINED_TAXA"
+# --- SUMMARIZE TO RELATIVE ABUNDANCE ---
+awk 'NR==FNR {map[$1]=$2; next} 
+     NR==1 {print "Treatment\tSpecies\tCount\tRelative_Abundance"; next} 
+     {sample=$1; species=$14; treatment=(map[sample]?map[sample]:sample); count[treatment, species]++; total[treatment]>
+     END {for (key in count) {split(key,a,SUBSEP); rel=count[key]/total[a[1]]; 
+         print a[1] "\t" a[2] "\t" count[key] "\t" rel}}' \
+     "$METADATA" "$COMBINED_TAXA" > "$SUMMARY"
+
+echo "✅ BLAST automation complete for $MARKER"
+echo "Results saved in: $OUTDIR"
