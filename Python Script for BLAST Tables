@@ -1,0 +1,156 @@
+#!/usr/bin/env python3
+
+import pandas as pd
+from pathlib import Path
+
+RESULTS_DIR = Path(".")
+TAXONOMY_FILE = Path("taxonomy_lookup.tsv")
+
+# -------------------------
+# Load taxonomy
+# -------------------------
+if not TAXONOMY_FILE.exists():
+    raise FileNotFoundError("taxonomy_lookup.tsv not found")
+
+taxonomy = pd.read_csv(
+    TAXONOMY_FILE,
+    sep="\t",
+    names=["accession", "species"]
+)
+
+taxonomy["species"] = taxonomy["species"].fillna("Unassigned")
+
+# -------------------------
+# Load BLAST hits
+# -------------------------
+blast_file = Path("best_hit_per_cluster_with_taxonomy.tsv")
+if not blast_file.exists():
+    raise FileNotFoundError("best_hit_per_cluster_with_taxonomy.tsv not found")
+
+blast = pd.read_csv(blast_file, sep="\t")
+
+# Expected columns sanity check
+required_cols = {
+    "Specimen",
+    "ClusterID",
+    "BestAccession",
+    "PercentIdentity",
+    "ClusterSize"
+}
+missing = required_cols - set(blast.columns)
+if missing:
+    raise ValueError(f"Missing required columns: {missing}")
+
+# -------------------------
+# Filter invalid clusters
+# -------------------------
+blast = blast[
+    blast["ClusterSize"].notna() &
+    (blast["ClusterSize"] > 0) &
+    blast["BestAccession"].notna()
+].copy()
+
+# -------------------------
+# Join taxonomy
+# -------------------------
+blast = blast.merge(
+    taxonomy,
+    left_on="BestAccession",
+    right_on="accession",
+    how="left"
+)
+
+blast["species"] = blast["species"].fillna("Unassigned")
+
+# -------------------------
+# Cluster-count table
+# -------------------------
+cluster_counts = (
+    blast
+    .groupby(["Specimen", "species"])
+    .size()
+    .reset_index(name="ClusterCount")
+)
+
+cluster_counts.to_csv(
+    "species_cluster_counts.tsv",
+    sep="\t",
+    index=False
+)
+
+# -------------------------
+# Weighted-count table
+# -------------------------
+weighted_counts = (
+    blast
+    .groupby(["Specimen", "species"])["ClusterSize"]
+    .sum()
+    .reset_index(name="WeightedCount")
+)
+
+weighted_counts.to_csv(
+    "species_weighted_counts.tsv",
+    sep="\t",
+    index=False
+)
+
+# -------------------------
+# Presence / absence table
+# -------------------------
+presence_absence = (
+    cluster_counts
+    .assign(Present=1)
+    .pivot_table(
+        index="species",
+        columns="Specimen",
+        values="Present",
+        fill_value=0
+    )
+    .reset_index()
+)
+
+presence_absence.to_csv(
+    "species_presence_absence.tsv",
+    sep="\t",
+    index=False
+)
+
+# -------------------------
+# Sanity checks
+# -------------------------
+total_species = cluster_counts["species"].nunique()
+control_species = cluster_counts[
+    cluster_counts["Specimen"] == "Negative_control"
+]["species"].nunique()
+
+control_only_species = (
+    cluster_counts
+    .groupby("species")["Specimen"]
+    .nunique()
+    .reset_index()
+    .query("Specimen == 1")
+)
+
+control_only_species = control_only_species.merge(
+    cluster_counts,
+    on="species"
+).query("Specimen == 'Negative_control'")
+
+control_only_species.to_csv(
+    "control_only_species.tsv",
+    sep="\t",
+    index=False
+)
+
+# -------------------------
+# Summary printout
+# -------------------------
+print("✔ Species tables written:")
+print("  - species_cluster_counts.tsv")
+print("  - species_weighted_counts.tsv")
+print("  - species_presence_absence.tsv")
+print("  - control_only_species.tsv")
+print()
+print(f"Total species detected: {total_species}")
+print(f"Species in Negative_control: {control_species}")
+print(f"Species only in Negative_control: {len(control_only_species)}")
