@@ -154,3 +154,12 @@ print()
 print(f"Total species detected: {total_species}")
 print(f"Species in Negative_control: {control_species}")
 print(f"Species only in Negative_control: {len(control_only_species)}")
+
+
+Output Files that this Script Produces:
+| File                           | What it’s for                 |
+| ------------------------------ | ----------------------------- |
+| `species_cluster_counts.tsv`   | **presence + robustness**     |
+| `species_weighted_counts.tsv`  | **abundance proxy**           |
+| `species_presence_absence.tsv` | **binary matrix for ecology** |
+| `control_only_species.tsv`     | **contamination screen**      |
