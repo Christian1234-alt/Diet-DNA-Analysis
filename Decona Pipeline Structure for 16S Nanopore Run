@@ -1,19 +1,19 @@
-./pipeline.sh \
+./pipeline.sh.20260128_175713.bak \
   -u /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_01/UploadsDirectory \
-  -r /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_01/ResultsDirectory_c95_t6 \
-  -v /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_01/CSVDirectory/16S_02.csv \
+  -r /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_01/ResultsDirectory_c85_t4 \
+  -v /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_01/CSVDirectory/16S_01.csv \
   -T 0 \
   -s /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_01/DatabaseDirectory \
   -f \
-  -b 11 \
-  -d 1 \
+  -b 10 \
+  -d 2 \
   -m 140 \
   -x 600 \
-  -q 7 \
+  -q 9 \
   -w 8 \
   -k 13 \
-  -c 0.95 \
-  -t 6
+  -c 0.85 \
+  -t 4
 
 ./pipeline.sh \
   -u /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_02/UploadsDirectory \
@@ -112,7 +112,7 @@
   -d 2 \
   -m 140 \
   -x 600 \
-  -q 7 \
+  -q 9 \
   -w 8 \
   -k 15 \
   -c 0.85 \
