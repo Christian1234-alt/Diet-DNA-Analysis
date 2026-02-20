@@ -102,7 +102,7 @@
   -t 6
 
 ./pipeline.sh.20260128_175713.bak  \
-  -u /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_07/UploadsDirectory \
+  -u /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_07/UploadDirectory \
   -r /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_07/ResultsDirectory_c95_t6 \
   -v /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_07/CSVDirectory/16S_02.csv \
   -T 0 \
