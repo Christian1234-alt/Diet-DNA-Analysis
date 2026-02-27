@@ -1,0 +1,7 @@
+Code to Build the Decona BLAST Database Without Using SeqKit:
+makeblastdb -in 16SDB.fasta -dbtype nucl -out 16SDB 
+makeblastdb -in COIDB.fasta -dbtype nucl -out COIDB
+
+Code to verify the database:
+blastdbcmd -db 16SDB -info
+blastdbcmd -db COIDB -info
