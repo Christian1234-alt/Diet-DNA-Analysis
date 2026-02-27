@@ -1,4 +1,4 @@
-./pipeline.sh.20260128_175713.bak \
+./pipeline.sh \
   -u /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_01/UploadDirectory \
   -r /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_01/ResultsDirectory_c85_t4 \
   -v /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_01/CSVDirectory/16S_01.csv \
