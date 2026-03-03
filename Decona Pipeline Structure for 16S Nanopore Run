@@ -103,11 +103,10 @@
 
 ./pipeline.sh \
   -u /home/aguirre_lab/Downloads/Decona-Website-main/Upload_Combined_Directory/16S_07_Run/fastq_pass \
-  -r /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_07/ResultsDirectory_c85_t4 \
+  -r /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_07/ResultsDirectory_c85_t3 \
   -v /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_07/CSVDirectory/16S_07.csv \
   -T 0 \
-  -s /home/aguirre_lab/Downloads/Decona-Website-main/Decona_BLAST_DB/16SDB 
-  -f \
+  -s /home/aguirre_lab/Downloads/Decona-Website-main/Decona_BLAST_DB/16SDB \ 
   -b 10 \
   -d 2 \
   -m 140 \
