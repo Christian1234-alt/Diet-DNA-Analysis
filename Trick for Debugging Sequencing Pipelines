@@ -1,0 +1,61 @@
+Take one cluster and BLAST it manually against your database
+Step 1 — Grab a single sequence
+
+You already have this file:
+
+53_Fresh/clusters/cluster_representatives.fasta
+
+Extract just the first sequence:
+
+head -n 2 cluster_representatives.fasta > test_sequence.fasta
+
+Now check it:
+
+cat test_sequence.fasta 
+You should see something like:
+
+>readID
+ATGCGATCGATCGATC...
+Step 2 — BLAST it manually
+
+Run BLAST directly against your database:
+
+blastn \
+-query test_sequence.fasta \
+-db ~/Downloads/Decona-Website-main/Decona_BLAST_DB/16SDB/16SDB_main/16SDB \
+-outfmt "6 qseqid sseqid pident length evalue bitscore stitle"
+🧪 Step 3 — Interpret the output
+
+Example output might look like:
+
+read1   JN133642.1   99.2   350   0.0   600   Dreissena polymorpha 16S ribosomal RNA
+
+That means:
+
+query sequence → matched Dreissena polymorpha
+
+So:
+
+✅ sequence valid
+✅ BLAST database works
+✅ taxonomy readable
+
+If BLAST returns nothing
+
+Possible causes:
+
+1️⃣ sequence too short
+2️⃣ poor quality read
+3️⃣ prey not in database
+
+But the pipeline itself would still be fine.
+
+⚡ Step 4 — Faster trick (even simpler)
+
+You can BLAST directly from the cluster file without extracting:
+blastn \
+-query cluster_representatives.fasta \
+-db ~/Downloads/Decona-Website-main/Decona_BLAST_DB/16SDB/16SDB_main/16SDB \
+-max_target_seqs 5 \
+-outfmt "6 qseqid sseqid pident stitle"
+
