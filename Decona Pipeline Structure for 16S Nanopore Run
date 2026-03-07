@@ -106,7 +106,7 @@
   -r /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_07/ResultsDirectory_c85_t3 \
   -v /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_07/CSVDirectory/16S_07.csv \
   -T 0 \
-  -s /home/aguirre_lab/Downloads/Decona-Website-main/Decona_BLAST_DB/16SDB \ 
+  -s /home/aguirre_lab/Downloads/Decona-Website-main/Decona_BLAST_DB/16SDB/16SDB_main\ 
   -b 10 \
   -d 2 \
   -m 140 \
@@ -117,7 +117,7 @@
   -c 0.85 \
   -t 3
 
-./pipeline.sh.20260128_175713.bak  \
+./pipeline.sh \
   -u /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_08/UploadsDirectory \
   -r /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_08/ResultsDirectory_c85_t4 \
   -v /home/aguirre_lab/Downloads/Decona-Website-main/ZipFolder_16S_08/CSVDirectory/16S_08.csv \
